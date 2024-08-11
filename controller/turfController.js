@@ -60,7 +60,7 @@ export const deleteTurf = async(req,res,next)=>{
 };
 export const getallTurf = async(req,res,next)=>{
   try{
-         const turfs = await Turf.find()
+         const turfs = await Turf.find().populate('court').exec();
          res.status(200).json(turfs)
   }
   catch(err){
@@ -70,7 +70,7 @@ export const getallTurf = async(req,res,next)=>{
 export const getTurf = async(req,res,next)=>{
   try {
 
-    const turf = await Turf.findById(req.params.turfid)
+    const turf = await Turf.findById(req.params.turfid).populate('court').exec();
     res.status(200).json(turf)
         
   }

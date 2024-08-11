@@ -53,3 +53,45 @@ export const login = async(req,res,next)=>{
         res.status(500).send('cant login')
     }
 };
+export  const updatePassword = async(req,res,next)=>{
+  try{
+    const {userid} = req.params
+    const {password} = req.body
+    const hashedpassword = await createHash(password);
+    const updateduser = await User.findByIdAndUpdate({_id : userid},{password:hashedpassword},{new:true})
+    res.status(200).json(updateduser)
+  }
+  catch(err){
+    console.log("error::",err)
+  }
+};
+export const updateProfile = async(req,res,next)=>{
+    try{
+            const {userid} = req.params
+            const updateduser = await User.findByIdAndUpdate({_id : userid},req.body,{new:true})
+            res.status(200).json(updateduser)
+    }
+    catch(err){
+            console.log('error::',err)
+    }
+}
+export const deleteUser = async(req,res,next)=>{
+    try{
+        
+            const deleted =  await User.findByIdAndDelete(req.params.userid)
+             res.status(200).json({deleted,message:'deleted'})
+  
+    }
+    catch(err){
+        console.log("error::",err)
+    }
+  };
+  export const getallUser = async(req,res,next)=>{
+    try{
+           const turfs = await User.find()
+           res.status(200).json(turfs)
+    }
+    catch(err){
+      console.log("erro:",err)
+    }
+  };

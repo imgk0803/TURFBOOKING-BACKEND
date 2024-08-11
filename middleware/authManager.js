@@ -4,7 +4,7 @@ dotenv.config()
 const key = process.env.JWT_KEY
 
 
-export const authUser= (req,res,next)=>{
+export const authManager= (req,res,next)=>{
    const token = req.cookies.token
    jwt.verify(token, key , function(err, decoded) {
     if(err){
@@ -12,8 +12,8 @@ export const authUser= (req,res,next)=>{
         return res.status(401).send('not verified')
     }
     req.user = decoded
-    console.log(req.user.role)
-    if (req.user.role !== "user") {
+   
+    if (req.user.role !== "manager" && req.user.role !== "admin") {
         return res.send("not authenticated");
       }
       next();
