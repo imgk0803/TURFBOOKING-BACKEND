@@ -31,11 +31,11 @@ price : {
 },
 timeslot: [{
     start: {
-      type: String,  
+      type: Number,  
       required: true
     },
     end: {
-      type: String, 
+      type: Number, 
       required: true
     },
     booked: {

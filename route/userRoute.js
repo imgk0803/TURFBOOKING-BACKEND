@@ -5,12 +5,13 @@ import { createOrder, getallpayment, verifyPayment } from "../controller/payment
 import { mock } from "../utils/mocksignature.js";
 import { getallTurf, getTurf } from "../controller/turfController.js";
 import { createReview, deleteReview, getReview, updateReview } from "../controller/reviewController.js";
+import { getCourts } from "../controller/courtController.js";
 const userRouter = express.Router()
 userRouter.post('/signin',signin)
 userRouter.post('/login',login)
 userRouter.post('/:userid/court/:courtid',createBooking)
 userRouter.delete('/deletebooking/:bid',deleteBooking)
-userRouter.post('/createorder/:bookid',createOrder)
+userRouter.post('/createorder',createOrder)
 userRouter.post('/verifypayment',verifyPayment)
 userRouter.get('/mock',mock)
 userRouter.get('/bookings',getallbookig)
@@ -26,5 +27,7 @@ userRouter.patch('/updatepwd/:userid',updatePassword)
 userRouter.patch('/updateprofile/:userid',updateProfile)
 userRouter.delete('/deleteuser/:userid',deleteUser)
 userRouter.get('/getusers',getallUser)
+userRouter.get('/turf/getcourt/:turfid',getCourts)
+
 
 export default userRouter

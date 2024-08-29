@@ -9,6 +9,7 @@ export const createBooking = async(req,res,next)=>{
             const{courtid} = req.params
            const {start} =req.body.timeslot
            const {end}  = req.body.timeslot
+
             const court = await Court.findById(courtid)
             const availabletime = court.timeslot.filter(ts=>{
                 if(ts.booked === false){
@@ -19,14 +20,8 @@ export const createBooking = async(req,res,next)=>{
             if(availabletime.length===0){
                 return res.send('no slots available')
             }
-            
-            const timeslotmatch =  availabletime.filter(ts=>{
-             
-                if(ts.start === start && ts.end === end){
-                    return ts
-                }
-            })
-         
+           
+            const timeslotmatch =  availabletime.filter(ts=>(ts.start === start && ts.end === end))
             if(timeslotmatch.length === 0){
                 return res.send("this time slot isnt available")
             }
@@ -37,10 +32,10 @@ export const createBooking = async(req,res,next)=>{
                 court : courtid,
                 price : court.price            })
             await booking.save()
-            await Court.findOneAndUpdate({_id:courtid,'timeslot.start':start,'timeslot.end':end},
+           const updatedcourt = await Court.findOneAndUpdate({_id:courtid,'timeslot.start':start,'timeslot.end':end},
                 {$set:{'timeslot.$.booked':true}},{new:true})//update the availabilty of courts
-         
             await User.findByIdAndUpdate(userid,{$push:{bookings:booking._id}},{new:true})
+            await Court.findByIdAndUpdate(courtid,{$push:{booking : booking._id}},{new:true})
             res.status(200).json(booking)
     }
     catch(err){
@@ -68,7 +63,7 @@ export const deleteBooking = async(req,res,next)=>{
 };
 export const getallbookig = async(req,res,next)=>{
     try{
-             const bookings = await Booking.find()
+             const bookings = await Booking.find().populate({path:'court',populate:{path : 'turf'}}).exec()
              if(!bookings){
                 
                     return res.status(500).send("there is no booking")

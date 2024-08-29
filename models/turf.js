@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 const turfSchema = new mongoose.Schema({
-    bookings: [{ type:mongoose.Schema.Types.ObjectId, ref: 'Booking' }],
     manager: { type:mongoose.Schema.Types.ObjectId, ref: 'User' },
     court : [{type:mongoose.Schema.Types.ObjectId,ref:'Court'}],
     title :{

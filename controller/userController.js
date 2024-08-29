@@ -42,10 +42,10 @@ export const login = async(req,res,next)=>{
         if(!checkpassword){
             return res.send('password not match')
         }
-
+        const role = user.role
         const token = await generateToken(user.email,user.role)
         res.cookie('token',token);
-        res.status(200).json({email,token,message:'login successfull'})
+        res.status(200).json({user,role,token,message:'login successfull'})
 
     }
     catch(err){

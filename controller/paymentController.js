@@ -1,4 +1,4 @@
-import Razorpay from "razorpay"
+import mongoose from "mongoose";
 import Booking from "../models/booking.js";
 import crypto from 'crypto'
 import { razorpayInstance } from "../razorPayconfig.js";
@@ -7,21 +7,17 @@ import Payment from "../models/payment.js";
 const key = razorpayInstance.key_secret
 export const createOrder = async(req,res,next)=>{
       try{
-            const booking = await Booking.findById(req.params.bookid)
-
-            const options ={
-                  amount: booking.price*100, 
+           const {total}= req.body 
+           const options ={
+                  amount: total*100, 
                   currency: "INR",
                   receipt: "order_rcptid_11"
                 };
                 const order = await razorpayInstance.orders.create(options)
-                const payment = new Payment({
-                  booking : req.params.bookid,
-                  order : order.id,
-                  amount: booking.price,
-
-                })
-                await payment.save()
+                if(!order){
+                  return res.send("order is not created")
+                }
+                
                 res.status(200).json(order) 
       }
       catch(err){
@@ -31,34 +27,70 @@ export const createOrder = async(req,res,next)=>{
 
 export const verifyPayment = async(req,res,next)=>{
       try{    
-              const {pay_id,order_id,signature,} = req.body
+              const {pay_id,order_id,signature,bookingsid,user} = req.body
               const hmac = crypto.createHmac('sha256',key);
               hmac.update(order_id + '|' + pay_id);
              const generated_signature = hmac.digest('hex');
 
              if (generated_signature === signature) {
-                const payment = await Payment.findOne({order : order_id })
-                payment.p_status = 'paid';
-                payment.created = new Date();
-                await payment.save()
+                const razorpayPayment = await razorpayInstance.payments.fetch(pay_id);
+                console.log(razorpayPayment)
+                if(razorpayPayment.status === "captured"){
+                  const payment = new Payment({
+                        user : user,
+                        booking : bookingsid,
+                        order : order_id,
+                        amount: razorpayPayment.amount/100 ,
+      
+                      })
+                      await payment.save()
+                  
+                    
+                      const objectIds = bookingsid.map(id => new mongoose.Types.ObjectId(id));
+                      
+                      // Update bookings with the payment ID
+                      const result = await Booking.updateMany(
+                        { _id: { $in: objectIds } },
+                        { $set: { payment: payment._id } }
+                      );
+                
+                  payment.p_status = 'paid';
+                  payment.created = new Date();
+                  await payment.save()
+                  console.log(payment._id)
+                  const bookings = await Booking.find({payment : payment._id }).exec()
+                  console.log(`Found ${bookings.length} bookings to update`);
+                  for(const booking of bookings){
+                    booking.status = "confirmed"
+                    await booking.save()
+                   
+                    
+                    
+                   }
+                   return res.send('Payment is successful');
 
-                 
-                return res.send('Payment is successful');
-
+                }else{
+                  const payment = await Payment.findOne({order : order_id })
+                  payment.p_status = 'failed';
+                   const delb = await Booking.deleteMany({payment : payment._id})
+                  const delp = await Payment.findByIdAndDelete(payment._id) 
+                  return res.json(delb)  
+                }
+             
       }
-      const payment = await Payment.findOne({order : order_id })
-      payment.p_status = 'failed';
-      await payment.save()
-      res.send("payment failed")
+      
+      res.send("invalid signature")
+      
 
 }
       catch(err){
             console.log(err)
       }
-}
+};
 export const getpayment = async(req,res,next)=>{
       try{
-              const payment =  await Payment.findById(req.params)
+              console.log(req.body)
+              const payment =  await Payment.find({user : user})
               res.status(200).json(payment)
 
       }
@@ -68,7 +100,10 @@ export const getpayment = async(req,res,next)=>{
 }
 export const getallpayment = async(req,res,next)=>{
       try{
-              const payment =  await Payment.find()
+              const payment =  await Payment.find().populate({path : 'booking', populate:{path :'court',
+                  populate : {path:'turf'}
+              }}).exec()
+              console.log(payment)
               res.status(200).json(payment)
 
       }

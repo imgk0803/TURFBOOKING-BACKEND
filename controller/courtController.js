@@ -6,9 +6,34 @@ import User from "../models/user.js";
 export const addcourt =  async(req,res,next)=>{
     try{
           const{turfid} = req.params
+          const newtimeslot = 
+          [
+            { "start": 6, "end": 7, "booked": false },
+            { "start": 7, "end": 8, "booked": false },
+            { "start": 8, "end": 9, "booked": false },
+            { "start": 9, "end": 10, "booked": false },
+            { "start": 10, "end": 11, "booked": false },
+            { "start": 11, "end": 12, "booked": false },
+            { "start": 12, "end": 13, "booked": false },
+            { "start": 13, "end": 14, "booked": false },
+            { "start": 14, "end": 15, "booked": false },
+            { "start": 15, "end": 16, "booked": false },
+            { "start": 16, "end": 17, "booked": false },
+            { "start": 17, "end": 18, "booked": false },
+            { "start": 18, "end": 19, "booked": false },
+            { "start": 19, "end": 20, "booked": false },
+            { "start": 20, "end": 21, "booked": false },
+            { "start": 21, "end": 22, "booked": false },
+            { "start": 22, "end": 23, "booked": false },
+            { "start": 23, "end": 24, "booked": false }
+          ]
+          
+          
+          
           const court = new Court({
             ...req.body,
-            turf : turfid,
+            timeslot : newtimeslot,
+            turf : turfid
           })
           await court.save()
           await Turf.findByIdAndUpdate(turfid,{$push:{court:court._id}},{new:true})
@@ -75,4 +100,13 @@ export const updateCourt= async(req,res,next)=>{
 
       }
   };
+  export const getOneCourt = async(re,res,next)=>{
+     try{
+               const {courtid} = req.params
+     }
+     catch(err){
+      console.log(err)
+     }
+
+  }
  

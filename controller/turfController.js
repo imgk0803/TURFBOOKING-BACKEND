@@ -78,5 +78,17 @@ export const getTurf = async(req,res,next)=>{
     console.log("error:", err)
   }
 };
+export const managerturf =async(req,res,next)=>{
+   try{
+           const managerid = req.params.managerid
+           const turf = await Turf.findOne({manager:managerid})
+           res.status(200).json(turf)
+   }
+   catch(err){
+            console.log(err)
+   }
+
+
+}
 
 

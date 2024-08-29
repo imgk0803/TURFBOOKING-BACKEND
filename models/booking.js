@@ -12,7 +12,7 @@ const bookingSchema = new mongoose.Schema({
       required: true
     },  
     payment: { 
-        type: mongoose.Schema.Types.ObjectId, ref: 'Payment' ,
+        type: mongoose.Schema.Types.ObjectId, ref: 'Payment' 
       
     },
     date:{
@@ -20,17 +20,18 @@ const bookingSchema = new mongoose.Schema({
     },
     timeslot: {
       start: {
-        type: String,
+        type: Number,
         required: true
       },
       end: {
-        type: String,
+        type: Number,
         required: true
       },
       status: {
         type: String,
         enum: ['confirmed', 'pending', 'canceled'],
-        default: 'pending'
+        default: 'pending',
+        required:true
       }
     },
     createdAt: {
@@ -40,6 +41,12 @@ const bookingSchema = new mongoose.Schema({
     price :{
       type:Number,
       required : true
+    },
+    status : {
+      type: String,
+      enum: ['confirmed', 'pending', 'canceled'],
+      default: 'pending',
+      required:true
     }
 
   });

@@ -11,6 +11,5 @@ adminRouter.patch('/turf/:turfid',updateTurf)
 adminRouter.delete('/turf/:turfid',deleteTurf)
 adminRouter.post('/turf/:turfid',addcourt)
 adminRouter.post('/turf/updatecourt/:turfid/:courtid',updateCourt)
-adminRouter.get('/turf/getcourt/:turfid',getCourts)
 adminRouter.delete('/turf/deletecourt/:courtid',deleteCourt)
 export default adminRouter
