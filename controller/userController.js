@@ -31,6 +31,33 @@ catch(err){
     res.status(500).send('not created')
 }
 }
+export const createManager = async (req,res,next) => {
+    try{
+        
+        const {username,email,password,phone,role} = req.body
+        const userexist = await User.findOne({email : email}) 
+        if(userexist){
+            return res.status(500).send("user is exists")
+        }
+    
+        const hashedpassword = await createHash(password);   
+        const user = new User({
+            username,
+            email,
+            phone,
+            password:hashedpassword,
+            role
+        })
+        await user.save()
+        
+        res.status(200).json({user,message:'signin successfull'})
+        
+    }
+    catch(err){
+        console.log("error ::" ,err)
+        res.status(500).send('not created')
+    }
+    }
 export const login = async(req,res,next)=>{
     try{
         const {email , password } = req.body
@@ -55,21 +82,33 @@ export const login = async(req,res,next)=>{
 };
 export  const updatePassword = async(req,res,next)=>{
   try{
-    const {userid} = req.params
-    const {password} = req.body
-    const hashedpassword = await createHash(password);
-    const updateduser = await User.findByIdAndUpdate({_id : userid},{password:hashedpassword},{new:true})
-    res.status(200).json(updateduser)
+    const {userid , password , confirm , current} = req.body
+    const user = await User.findById(userid)
+    const checkpassword = await bcrypt.compare(current , user.password)
+    console.log(current)
+    console.log("check::" ,checkpassword)
+    
+    if(checkpassword){
+        if(password !== confirm){
+            return res.send("the passwords arent matching")
+        }
+        const newPassword = await createHash(password)
+        console.log(newPassword)
+        const updateduser = await User.findByIdAndUpdate({_id : userid},{password:newPassword},{new:true})
+        return res.send("password changed successfully")
+    }
+    res.send("the password that you entered wrong")
+   
   }
   catch(err){
-    console.log("error::",err)
+   console.log("password >>",err)
   }
 };
 export const updateProfile = async(req,res,next)=>{
     try{
-            const {userid} = req.params
-            const updateduser = await User.findByIdAndUpdate({_id : userid},req.body,{new:true})
-            res.status(200).json(updateduser)
+            const {userid , email , phone , username} = req.body
+            const updateduser = await User.findByIdAndUpdate({_id : userid},{email:email, phone:phone , username:username},{new:true})
+            res.status(200).json({updateduser,message:"successfull"})
     }
     catch(err){
             console.log('error::',err)

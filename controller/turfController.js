@@ -13,7 +13,7 @@ export const createTurf = async(req,res,next)=>{
           }
           const result = await cloudinaryInstance.uploader.upload(req.file.path)
           const imageUrl = result.secure_url
-          const {manager,title,description,city,dist,lat,long,img} = req.body
+          const {manager,title,description,city,dist,lat,long} = req.body
           const managerexist = await User.findOne({email : manager})
           console.log(managerexist)
           if(managerexist.role !== 'manager'){
@@ -70,7 +70,7 @@ export const getallTurf = async(req,res,next)=>{
 export const getTurf = async(req,res,next)=>{
   try {
 
-    const turf = await Turf.findById(req.params.turfid).populate('court').exec();
+    const turf = await Turf.findById(req.params.turfid).populate('court').populate('reviews').exec();
     res.status(200).json(turf)
         
   }

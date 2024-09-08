@@ -34,7 +34,6 @@ export const verifyPayment = async(req,res,next)=>{
 
              if (generated_signature === signature) {
                 const razorpayPayment = await razorpayInstance.payments.fetch(pay_id);
-                console.log(razorpayPayment)
                 if(razorpayPayment.status === "captured"){
                   const payment = new Payment({
                         user : user,
@@ -57,9 +56,7 @@ export const verifyPayment = async(req,res,next)=>{
                   payment.p_status = 'paid';
                   payment.created = new Date();
                   await payment.save()
-                  console.log(payment._id)
                   const bookings = await Booking.find({payment : payment._id }).exec()
-                  console.log(`Found ${bookings.length} bookings to update`);
                   for(const booking of bookings){
                     booking.status = "confirmed"
                     await booking.save()
@@ -70,11 +67,7 @@ export const verifyPayment = async(req,res,next)=>{
                    return res.send('Payment is successful');
 
                 }else{
-                  const payment = await Payment.findOne({order : order_id })
-                  payment.p_status = 'failed';
-                   const delb = await Booking.deleteMany({payment : payment._id})
-                  const delp = await Payment.findByIdAndDelete(payment._id) 
-                  return res.json(delb)  
+                   
                 }
              
       }

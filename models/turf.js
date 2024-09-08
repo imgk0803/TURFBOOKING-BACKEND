@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const turfSchema = new mongoose.Schema({
     manager: { type:mongoose.Schema.Types.ObjectId, ref: 'User' },
     court : [{type:mongoose.Schema.Types.ObjectId,ref:'Court'}],
+    reviews : [{type:mongoose.Schema.Types.ObjectId,ref:'Review'}],
     title :{
         type : String,
         required : true

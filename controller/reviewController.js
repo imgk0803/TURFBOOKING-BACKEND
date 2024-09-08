@@ -1,18 +1,20 @@
 import Review from "../models/review.js";
+import Turf from "../models/turf.js";
 import User from "../models/user.js";
 
 
 export const createReview = async(req,res,next)=>{
     try{
-                const{turfid,userid} = req.params
-                console.log(req.params)
+                const{rating , turfreview , turfid , userid} = req.body
                 const review = new Review({
-                    ...req.body,
+                    rating : rating,
+                    content : turfreview,
                     turf : turfid,
                     reviewer : userid,
                 })
                 await review.save()
-                res.status(200).json(review)
+                const turf = await Turf.findByIdAndUpdate(turfid,{$push : {reviews : review._id}},{new:true}).populate('reviews')
+                res.status(200).json({review,turf})
     }
     catch(err){
         console.log(err)
