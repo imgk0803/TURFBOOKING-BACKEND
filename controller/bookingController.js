@@ -1,6 +1,7 @@
 import Booking from "../models/booking.js"
 import Court from "../models/court.js"
 import User from "../models/user.js"
+import Turf from "../models/turf.js";
 
 
 export const createBooking = async(req,res,next)=>{
@@ -35,26 +36,25 @@ export const createBooking = async(req,res,next)=>{
            const updatedcourt = await Court.findOneAndUpdate({_id:courtid,'timeslot.start':start,'timeslot.end':end},
                 {$set:{'timeslot.$.booked':true}},{new:true})//update the availabilty of courts
             await User.findByIdAndUpdate(userid,{$push:{bookings:booking._id}},{new:true})
-            await Court.findByIdAndUpdate(courtid,{$push:{booking : booking._id}},{new:true})
             res.status(200).json(booking)
     }
     catch(err){
         console.log("error::",err)
     }
 };
-export const deleteBooking = async(req,res,next)=>{
-    try{     
-            const deleted = await Booking.findByIdAndDelete(req.params.bid)
+export const cancelBooking = async(req,res,next)=>{
+    try{    
+
+            const deleted = await Booking.findByIdAndUpdate(req.params.bid,{status : "canceled"},{new : true})
             if(!deleted){
                 return res.status(500).send("there is no such booking")
             }
-            await User.updateOne({_id:deleted.user},{$pull:{bookings:deleted._id.toString()}})
             await Court.findOneAndUpdate({_id:deleted.court,
                 'timeslot.start':deleted.timeslot.start,
                 'timeslot.end':deleted.timeslot.end},{
                 $set:{'timeslot.$.booked':false}},{new:true}
                 )
-            await Court.updateOne({_id:deleted.court},{$pull:{booking:deleted._id.toString()}})
+            
             res.status(200).json(deleted)
     }
     catch(err){
@@ -77,13 +77,19 @@ export const getallbookig = async(req,res,next)=>{
         console.log(err)
     }
 };
-export const getoneBooking = async(req,res,next)=>{
+export const getManagerBooking = async(req,res,next)=>{
     try{
-                const booking = await Booking.findById(req.params.bid)
-                if(!booking){
-                    return res.status(500).send("there is no such booking")
+                const managerid = req.params.managerid
+                const turf = await Turf.findOne({manager:managerid})
+                const courtids = turf.court && turf.court.map(court=>court._id.toString())
+                const bookings = await Booking.find({court :{
+                    $in : courtids
                 }
-                res.status(200).json(booking)
+                }).populate('court').populate('user')
+                res.status(200).json(bookings)
+                
+
+                
     }
     catch(err){
         console.log(err)
@@ -92,8 +98,7 @@ export const getoneBooking = async(req,res,next)=>{
 export const updateBooking = async(req,res,next)=>{      
     try{     
             const{courtid} = req.params
-           const {start} =req.body.timeslot
-           const {end}  = req.body.timeslot
+           const {start , end } =req.body
             const court = await Court.findById(courtid)
             const availabletime = court.timeslot.filter(ts=>{
                 if(ts.booked === false){
@@ -115,9 +120,23 @@ export const updateBooking = async(req,res,next)=>{
             if(timeslotmatch.length === 0){
                 return res.send("this time slot isnt available")
             }
-   
-            const updated = await Booking.findByIdAndUpdate(req.params.bid,req.body,{new:true})
-            res.status(200).json(updated)
+            const booking = await Booking.findById(req.params.bid)
+            if(booking.status !== 'confirmed'){
+                return res.send('The Booking Is Already Cancelled')
+            }
+            const updated = await Booking.findByIdAndUpdate(req.params.bid,{
+                    "timeslot.start" : start,
+                    "timeslot.end" : end
+                    }
+            ,{new:true})
+            if(updated){
+                const settrue = await Court.findOneAndUpdate({_id:courtid,'timeslot.start':start,'timeslot.end':end},
+                    {$set:{'timeslot.$.booked':true}},{new:true})   
+                const setfalse = await Court.findOneAndUpdate({_id:courtid,'timeslot.start':booking.timeslot.start,'timeslot.end':booking.timeslot.end},
+                    {$set:{'timeslot.$.booked':false}},{new:true})
+                    return res.status(200).json({settrue , setfalse})
+            }
+            res.status(200).send("Didnt Updated")
 
     }
     catch(err){

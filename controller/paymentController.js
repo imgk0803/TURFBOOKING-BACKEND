@@ -96,7 +96,6 @@ export const getallpayment = async(req,res,next)=>{
               const payment =  await Payment.find().populate({path : 'booking', populate:{path :'court',
                   populate : {path:'turf'}
               }}).exec()
-              console.log(payment)
               res.status(200).json(payment)
 
       }

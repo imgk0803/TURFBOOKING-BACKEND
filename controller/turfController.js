@@ -1,6 +1,5 @@
 import Court from "../models/court.js";
 import Turf from "../models/turf.js";
-import mongoose from "mongoose";
 import User from "../models/user.js";
 import cloudinaryInstance from "../config/cloudinaryConfig.js";
 
@@ -15,7 +14,6 @@ export const createTurf = async(req,res,next)=>{
           const imageUrl = result.secure_url
           const {manager,title,description,city,dist,lat,long} = req.body
           const managerexist = await User.findOne({email : manager})
-          console.log(managerexist)
           if(managerexist.role !== 'manager'){
             return res.send('add manager first')
           }
@@ -40,6 +38,13 @@ export const createTurf = async(req,res,next)=>{
 };
 export const updateTurf = async(req,res,next)=>{
     try{
+      console.log(req.body)
+      if(req.file){
+        const result = await cloudinaryInstance.uploader.upload(req.file.path)
+        const imageUrl = result.secure_url
+        req.body.image = imageUrl
+      }
+       
         const newturf = await Turf.findByIdAndUpdate(req.params.turfid,req.body,{new:true})
         res.status(200).json({newturf,message:'turf updated'})
     }
@@ -69,7 +74,6 @@ export const getallTurf = async(req,res,next)=>{
 };
 export const getTurf = async(req,res,next)=>{
   try {
-
     const turf = await Turf.findById(req.params.turfid).populate('court').populate('reviews').exec();
     res.status(200).json(turf)
         
@@ -89,6 +93,27 @@ export const managerturf =async(req,res,next)=>{
    }
 
 
+}
+export const sortTurfs = async(req,res)=>{
+  try{
+         const{latitude , longitude} = req.query
+         console.log(latitude)
+         const turfs = await Turf.find({
+          location : {
+            $near : {
+              $geometry :{
+                type: 'Point',
+                coordinates: [longitude, latitude]
+              },
+              $maxDistance: 10000 
+            }
+          }
+         }).limit(10)
+         res.status(200).json(turfs)
+  }
+  catch(error){
+          console.log(error)
+  }
 }
 
 

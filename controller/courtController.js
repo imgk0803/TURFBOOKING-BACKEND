@@ -62,22 +62,9 @@ export const getCourts = async(req,res,next)=>{
 };
 export const updateCourt= async(req,res,next)=>{
   try{
-            
-           const multipleCourts = await Court.find({turf:req.params.turfid})
-           console.log(multipleCourts)
-           const coexi = multipleCourts.filter(court =>{
-             if( court._id.toString() === req.params.courtid.toString()){
-                return court
-             }
-              
-           })
-           
-          console.log(coexi)
-           if(coexi.length === 0){
-                return res.send('no courts')
-           }
-           
-           const newcourt = await Court.findByIdAndUpdate(coexi[0]._id,req.body,{new:true})
+          
+          const {courtid , price}  =  req.body
+           const newcourt = await Court.findByIdAndUpdate(courtid,{price : price},{new:true})
            res.status(200).json(newcourt)
         
           
@@ -90,7 +77,6 @@ export const updateCourt= async(req,res,next)=>{
       try{
             const deleted =  await Court.findByIdAndDelete(req.params.courtid)
             res.status(200).json({deleted,message:'deleted'})
-            console.log()
             await Turf.updateOne(
               { _id: deleted.turf },
               { $pull: { court: deleted._id.toString() } } 

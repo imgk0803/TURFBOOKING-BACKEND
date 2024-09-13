@@ -20,21 +20,23 @@ const turfSchema = new mongoose.Schema({
         type : String,
         required:true
     },
-        
-    lat:{
-             type :Number,
-             
+    location : {
+        type : {
+            type : String,
+            enum : ["Point"],
+            default : "Point"
         },
-    long: {  
-             type:Number,
-            
-        },
+        coordinates : {
+            type : [Number],
+            required : true
+        }
+    },
     image :{
         type:String,
         require:true
     }
 
 })
-
+turfSchema.index({ location: '2dsphere' })
 const Turf = mongoose.model('Turf', turfSchema)
 export default Turf;

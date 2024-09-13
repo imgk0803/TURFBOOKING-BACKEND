@@ -11,7 +11,6 @@ export const authAdmin= (req,res,next)=>{
         return res.status(401).send('not verified')
     }
     req.user = decoded
-    console.log(req.user.role)
     if (req.user.role !== "admin") {
         return res.send("not authenticated");
       }
