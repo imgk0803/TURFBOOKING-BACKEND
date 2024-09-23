@@ -16,7 +16,7 @@ app.use('/api', v1Router)
 cron.schedule('0 * * * *', async () => {
   try{
     await updateTimeSlot();
-  }
+    }
   catch(err){
     console.log("error",err)
   }

@@ -8,9 +8,8 @@ export const createBooking = async(req,res,next)=>{
     try{
             const{userid} =req.params
             const{courtid} = req.params
-           const {start} =req.body.timeslot
-           const {end}  = req.body.timeslot
-
+            const {start} =req.body.timeslot
+            const {end}  = req.body.timeslot
             const court = await Court.findById(courtid)
             const availabletime = court.timeslot.filter(ts=>{
                 if(ts.booked === false){
@@ -42,6 +41,21 @@ export const createBooking = async(req,res,next)=>{
         console.log("error::",err)
     }
 };
+export const deleteBooking= async(req,res)=>{
+try{
+    const deleted = await Booking.findByIdAndDelete(req.params.bid)
+    await Court.findOneAndUpdate({_id:deleted.court,
+        'timeslot.start':deleted.timeslot.start,
+        'timeslot.end':deleted.timeslot.end},{
+        $set:{'timeslot.$.booked':false}},{new:true}
+        )
+    res.status(200).json(deleted)
+
+}
+catch(err){
+    console.log(err)
+}
+}
 export const cancelBooking = async(req,res,next)=>{
     try{    
 
@@ -54,7 +68,6 @@ export const cancelBooking = async(req,res,next)=>{
                 'timeslot.end':deleted.timeslot.end},{
                 $set:{'timeslot.$.booked':false}},{new:true}
                 )
-            
             res.status(200).json(deleted)
     }
     catch(err){
@@ -105,18 +118,15 @@ export const updateBooking = async(req,res,next)=>{
                     return ts
                 }
             })
-            console.log(availabletime)
             if(availabletime.length===0){
                 return res.send('no slots available')
             }
-            console.log(availabletime)
             const timeslotmatch =  availabletime.filter(ts=>{
              
                 if(ts.start === start && ts.end === end){
                     return ts
                 }
             })
-            console.log("slotmatch   ",timeslotmatch)
             if(timeslotmatch.length === 0){
                 return res.send("this time slot isnt available")
             }

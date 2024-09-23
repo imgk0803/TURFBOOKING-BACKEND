@@ -71,7 +71,6 @@ export const login = async(req,res,next)=>{
         }
         const role = user.role
         const token = await generateToken(user.email,user.role)
-        console.log("token",token)
         res.cookie('token',token);
         res.status(200).json({user,role,token,message:'login successfull'})
 
@@ -86,15 +85,12 @@ export  const updatePassword = async(req,res,next)=>{
     const {userid , password , confirm , current} = req.body
     const user = await User.findById(userid)
     const checkpassword = await bcrypt.compare(current , user.password)
-    console.log(current)
-    console.log("check::" ,checkpassword)
     
     if(checkpassword){
         if(password !== confirm){
             return res.send("the passwords arent matching")
         }
         const newPassword = await createHash(password)
-        console.log(newPassword)
         const updateduser = await User.findByIdAndUpdate({_id : userid},{password:newPassword},{new:true})
         return res.send("password changed successfully")
     }

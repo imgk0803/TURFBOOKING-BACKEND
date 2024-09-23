@@ -24,7 +24,7 @@ export const createReview = async(req,res,next)=>{
 export const getReview = async(req,res,next)=>{
     try{
 
-        const review = await Review.find()      
+        const review = await Review.find()     
         if(!review){
            
                return res.status(500).send("there is no review")

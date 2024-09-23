@@ -82,7 +82,6 @@ export const verifyPayment = async(req,res,next)=>{
 };
 export const getpayment = async(req,res,next)=>{
       try{
-              console.log(req.body)
               const payment =  await Payment.find({user : user})
               res.status(200).json(payment)
 

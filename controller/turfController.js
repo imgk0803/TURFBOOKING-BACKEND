@@ -24,8 +24,10 @@ export const createTurf = async(req,res,next)=>{
             description,
             city,
             dist,
-            lat,
-            long,
+            location: {
+              type: "Point",
+              coordinates: [parseFloat(long), parseFloat(lat)],
+          },
             image:imageUrl
           })
           await turf.save()
@@ -38,7 +40,6 @@ export const createTurf = async(req,res,next)=>{
 };
 export const updateTurf = async(req,res,next)=>{
     try{
-      console.log(req.body)
       if(req.file){
         const result = await cloudinaryInstance.uploader.upload(req.file.path)
         const imageUrl = result.secure_url
@@ -74,7 +75,12 @@ export const getallTurf = async(req,res,next)=>{
 };
 export const getTurf = async(req,res,next)=>{
   try {
-    const turf = await Turf.findById(req.params.turfid).populate('court').populate('reviews').exec();
+    const turf = await Turf.findById(req.params.turfid).populate('court').populate({path: 'reviews',
+      populate: {
+        path: 'reviewer', 
+        select: 'username ', 
+      },
+    }).exec();
     res.status(200).json(turf)
         
   }
@@ -96,16 +102,16 @@ export const managerturf =async(req,res,next)=>{
 }
 export const sortTurfs = async(req,res)=>{
   try{
-         const{latitude , longitude} = req.query
-         console.log(latitude)
+         const lat = parseFloat(req.query.lat)
+         const lon = parseFloat(req.query.lon)
          const turfs = await Turf.find({
           location : {
             $near : {
               $geometry :{
                 type: 'Point',
-                coordinates: [longitude, latitude]
+                coordinates: [lon, lat]
               },
-              $maxDistance: 10000 
+              $maxDistance: 100000 
             }
           }
          }).limit(10)

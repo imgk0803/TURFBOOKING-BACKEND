@@ -15,6 +15,7 @@ export const updateTimeSlot = async(req,res)=>{
         })
         await court.save()
     }
+   
 }
 export const resetSlots =async(req,res)=>{
    const courts =  await Court.find();
@@ -24,4 +25,5 @@ export const resetSlots =async(req,res)=>{
     })
     await court.save()
    }
+  
 }
