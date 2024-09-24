@@ -6,6 +6,7 @@ import { mock } from "../utils/mocksignature.js";
 import { getallTurf, getTurf, sortTurfs } from "../controller/turfController.js";
 import { createReview, deleteReview, getReview, updateReview } from "../controller/reviewController.js";
 import { getCourts } from "../controller/courtController.js";
+import razorpayKey from "../utils/frontEndKey.js";
 const userRouter = express.Router()
 userRouter.post('/signin',signin)//ok
 userRouter.post('/login',login)//ok
@@ -28,6 +29,7 @@ userRouter.delete('/deleteuser/:userid',deleteUser)
 userRouter.get('/getusers',getallUser)
 userRouter.get('/turf/getcourt/:turfid',getCourts)
 userRouter.get('/turfs',sortTurfs)//ok
+userRouter.get('/razorpaykey',razorpayKey)
 
 
 export default userRouter

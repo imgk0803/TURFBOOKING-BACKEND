@@ -10,7 +10,15 @@ export const createBooking = async(req,res,next)=>{
             const{courtid} = req.params
             const {start} =req.body.timeslot
             const {end}  = req.body.timeslot
+            const bookdate = new Date(req.body.date)
             const court = await Court.findById(courtid)
+            const bookingsExist = await Booking.findOne({court : courtid , 
+                'timeslot.start':start ,
+                 'timeslot.end':end ,
+                  date : bookdate}) 
+            if(bookingsExist){
+                return res.send('Already Booked')
+            }
             const availabletime = court.timeslot.filter(ts=>{
                 if(ts.booked === false){
                     return ts
