@@ -14,6 +14,8 @@ export const updateTimeSlot = async(req,res)=>{
             }
         })
         await court.save()
+        console.log(court)
+        res.send("Updates Successfully")
     }
    
 }
@@ -24,6 +26,8 @@ export const resetSlots =async(req,res)=>{
         slot.booked = false
     })
     await court.save()
+    console.log(court)
+    res.send("Reseted Successfully")
    }
   
 }
