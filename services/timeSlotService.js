@@ -7,6 +7,7 @@ export const updateTimeSlot = async(req,res)=>{
         'timeslot.start' : {$lt:currentHour},
         'timeslot.booked' : false
     });
+
     for(const court of courts){
         court.timeslot.forEach((slot)=>{
             if(slot.start < currentHour && !slot.booked){
@@ -14,9 +15,8 @@ export const updateTimeSlot = async(req,res)=>{
             }
         })
         await court.save()
-        console.log(court)
-        res.send("Updates Successfully")
     }
+
    
 }
 export const resetSlots =async(req,res)=>{
@@ -26,8 +26,6 @@ export const resetSlots =async(req,res)=>{
         slot.booked = false
     })
     await court.save()
-    console.log(court)
-    res.send("Reseted Successfully")
    }
   
 }
