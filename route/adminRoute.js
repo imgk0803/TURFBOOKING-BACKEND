@@ -15,7 +15,7 @@ adminRouter.post('/addcourt/:turfid',addcourt)//ok
 adminRouter.post('/updatecourt',updateCourt)//ok
 adminRouter.delete('/turf/deletecourt/:courtid',deleteCourt)
 adminRouter.post('/addmanager',createManager)//ok
-adminRouter.post('/update-timeslots',async(res)=>{
+adminRouter.post('/update-timeslots',async(req,res)=>{
     try {
         await updateTimeSlot();
         res.status(200).send({ message: 'Timeslots updated successfully' });
@@ -23,7 +23,7 @@ adminRouter.post('/update-timeslots',async(res)=>{
         res.status(500).send({ message: 'Error updating timeslots', err });
     }
 })
-adminRouter.post('/reset-slots',async(res)=>{
+adminRouter.post('/reset-slots',async(req,res)=>{
    try{
       await resetSlots();
       res.status(200).send({message:'timeslot reseted successfully'})
