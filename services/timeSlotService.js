@@ -15,9 +15,7 @@ export const updateTimeSlot = async()=>{
             }
         })
         await court.save()
-    }
-    res.status(200).send({message:`Timeslot Updated for ${currentHour} IST`})
-   
+    }   
 }
 export const resetSlots =async()=>{
    const courts =  await Court.find();

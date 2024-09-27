@@ -18,7 +18,7 @@ adminRouter.post('/addmanager',createManager)//ok
 adminRouter.post('/update-timeslots',async(req,res)=>{
     try {
         await updateTimeSlot();
-        res.status(200).send({ message: 'Timeslots updated successfully' });
+        res.status(200).send({message:`Timeslot Updated`})
     } catch (err) {
         res.status(500).send({ message: 'Error updating timeslots', err });
     }
