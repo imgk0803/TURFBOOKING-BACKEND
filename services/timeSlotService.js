@@ -20,12 +20,7 @@ export const updateTimeSlot = async(req,res)=>{
    
 }
 export const resetSlots =async(req,res)=>{
-   const now = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-   const currentHour = new Date(now).getHours();
    const courts =  await Court.find();
-   if(currentHour>6){
-    return res.status(200).send({message:'timeslot cant reset now!'})
-   }
    for(const court of courts){
     court.timeslot.forEach(slot=>{
         slot.booked = false

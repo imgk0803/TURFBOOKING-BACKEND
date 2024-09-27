@@ -17,7 +17,7 @@ export const createBooking = async(req,res,next)=>{
                  'timeslot.end':end ,
                   date : bookdate}) 
             if(bookingsExist){
-                return res.send('Already Booked')
+                return res.send('this time slot isnt available')
             }
             const availabletime = court.timeslot.filter(ts=>{
                 if(ts.booked === false){
@@ -40,10 +40,10 @@ export const createBooking = async(req,res,next)=>{
                 court : courtid,
                 price : court.price            })
             await booking.save()
-           const updatedcourt = await Court.findOneAndUpdate({_id:courtid,'timeslot.start':start,'timeslot.end':end},
+            await Court.findOneAndUpdate({_id:courtid,'timeslot.start':start,'timeslot.end':end},
                 {$set:{'timeslot.$.booked':true}},{new:true})//update the availabilty of courts
             await User.findByIdAndUpdate(userid,{$push:{bookings:booking._id}},{new:true})
-            res.status(200).json(booking)
+            res.status(200).send('Booking Successfull!')
     }
     catch(err){
         console.log("error::",err)
