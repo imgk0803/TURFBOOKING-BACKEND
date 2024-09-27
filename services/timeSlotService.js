@@ -1,6 +1,6 @@
 import Court from "../models/court.js";
 
-export const updateTimeSlot = async(req,res)=>{
+export const updateTimeSlot = async()=>{
     const now = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
     const currentHour = new Date(now).getHours();
     const courts = await Court.find({
@@ -19,7 +19,7 @@ export const updateTimeSlot = async(req,res)=>{
     res.status(200).send({message:`Timeslot Updated for ${currentHour} IST`})
    
 }
-export const resetSlots =async(req,res)=>{
+export const resetSlots =async()=>{
    const courts =  await Court.find();
    for(const court of courts){
     court.timeslot.forEach(slot=>{
@@ -27,5 +27,4 @@ export const resetSlots =async(req,res)=>{
     })
     await court.save()
    }
-  res.status(200).send({message:'timeslot reseted successfully'})
 }
